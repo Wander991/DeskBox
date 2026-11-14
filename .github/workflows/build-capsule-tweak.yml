@@ -36,31 +36,31 @@ jobs:
         with:
           arch: x64
 
-      - name: Restore
+      - name: Restore and publish Native AOT
         shell: pwsh
-        run: >-
-          dotnet restore .\src\DeskBox\DeskBox.csproj
-          -p:Platform=x64 -p:RuntimeIdentifier=win-x64
-          -p:DeskBoxDistribution=Direct -p:DeskBoxAotAudit=true
-          -p:DeskBoxAotSmokeHarness=false -p:PublishAot=true
-          -p:DeskBoxRustNative=true -p:DeskBoxRustCrtLinkage=Static
-          -p:JsonSerializerIsReflectionEnabledByDefault=false
-          -p:IlcUseEnvironmentalTools=true -p:SelfContained=true
-          -p:WindowsAppSDKSelfContained=true -v:minimal
-
-      - name: Publish Native AOT
-        shell: pwsh
-        run: >-
-          dotnet publish .\src\DeskBox\DeskBox.csproj
-          -c Release -o .\publish
-          -p:Platform=x64 -p:RuntimeIdentifier=win-x64
-          -p:DeskBoxDistribution=Direct -p:DeskBoxAotAudit=true
-          -p:DeskBoxAotSmokeHarness=false -p:PublishAot=true
-          -p:DeskBoxRustNative=true -p:DeskBoxRustCrtLinkage=Static
-          -p:JsonSerializerIsReflectionEnabledByDefault=false
-          -p:IlcUseEnvironmentalTools=true -p:SelfContained=true
-          -p:WindowsAppSDKSelfContained=true
-          -p:PublishSingleFile=false -v:minimal
+        run: |
+          $props = @(
+            '-p:Platform=x64',
+            '-p:RuntimeIdentifier=win-x64',
+            '-p:DeskBoxDistribution=Direct',
+            '-p:DeskBoxAotAudit=true',
+            '-p:DeskBoxAotSmokeHarness=false',
+            '-p:PublishAot=true',
+            '-p:DeskBoxRustNative=true',
+            '-p:DeskBoxRustCrtLinkage=Static',
+            '-p:JsonSerializerIsReflectionEnabledByDefault=false',
+            '-p:IlcUseEnvironmentalTools=true',
+            '-p:SelfContained=true',
+            '-p:WindowsAppSDKSelfContained=true'
+          )
+          # The retail publish also builds DeskBox.Updater; both projects need
+          # their own project.assets.json before dotnet publish runs.
+          dotnet restore .\src\DeskBox.Updater\DeskBox.Updater.csproj @props -v:minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore .\src\DeskBox\DeskBox.csproj @props -v:minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet publish .\src\DeskBox\DeskBox.csproj -c Release -o .\publish @props -p:PublishSingleFile=false -v:minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: List publish output
         if: always()
