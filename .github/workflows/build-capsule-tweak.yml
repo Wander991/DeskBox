@@ -1,0 +1,79 @@
+name: build-capsule-tweak
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ deskbox-capsule-tweak ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_UI_LANGUAGE: en-US
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Rust 1.96.0
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.96.0
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup MSVC toolchain
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Restore
+        shell: pwsh
+        run: >-
+          dotnet restore .\src\DeskBox\DeskBox.csproj
+          -p:Platform=x64 -p:RuntimeIdentifier=win-x64
+          -p:DeskBoxDistribution=Direct -p:DeskBoxAotAudit=true
+          -p:DeskBoxAotSmokeHarness=false -p:PublishAot=true
+          -p:DeskBoxRustNative=true -p:DeskBoxRustCrtLinkage=Static
+          -p:JsonSerializerIsReflectionEnabledByDefault=false
+          -p:IlcUseEnvironmentalTools=true -p:SelfContained=true
+          -p:WindowsAppSDKSelfContained=true -v:minimal
+
+      - name: Publish Native AOT
+        shell: pwsh
+        run: >-
+          dotnet publish .\src\DeskBox\DeskBox.csproj
+          -c Release -o .\publish
+          -p:Platform=x64 -p:RuntimeIdentifier=win-x64
+          -p:DeskBoxDistribution=Direct -p:DeskBoxAotAudit=true
+          -p:DeskBoxAotSmokeHarness=false -p:PublishAot=true
+          -p:DeskBoxRustNative=true -p:DeskBoxRustCrtLinkage=Static
+          -p:JsonSerializerIsReflectionEnabledByDefault=false
+          -p:IlcUseEnvironmentalTools=true -p:SelfContained=true
+          -p:WindowsAppSDKSelfContained=true
+          -p:PublishSingleFile=false -v:minimal
+
+      - name: List publish output
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path .\publish) {
+            Get-ChildItem .\publish -File | Select-Object Name,Length | Format-Table -AutoSize
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeskBox-capsule-tweak-win-x64
+          path: ./publish/
+          if-no-files-found: error
+          retention-days: 14

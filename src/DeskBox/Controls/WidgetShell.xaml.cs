@@ -2454,10 +2454,10 @@ public sealed partial class WidgetShell : UserControl
         }
 
         _compactPresentation = presentation;
-        CompactTitleText.Text = presentation.Title;
-        CompactTitleMarqueeClone.Text = presentation.Title;
-        CompactSummaryText.Text = presentation.Summary;
-        CompactSummaryMarqueeClone.Text = presentation.Summary;
+        CompactTitleText.Text = string.Empty;
+        CompactTitleMarqueeClone.Text = string.Empty;
+        CompactSummaryText.Text = string.Empty;
+        CompactSummaryMarqueeClone.Text = string.Empty;
         CompactTitleIcon.Glyph = presentation.Glyph;
         CompactTitleIcon.LabelText = presentation.Title;
 
@@ -2625,7 +2625,7 @@ public sealed partial class WidgetShell : UserControl
         double identityHitSize;
         if (showVinyl)
         {
-            identityVisualSize = _compactWidthTier == WidgetCompactWidthTier.Narrow ? 22 : 26;
+            identityVisualSize = _compactWidthTier == WidgetCompactWidthTier.Narrow ? 18 : 20;
             identityHitSize = identityVisualSize;
         }
         else if (useFullBleed)
@@ -2637,12 +2637,12 @@ public sealed partial class WidgetShell : UserControl
         {
             identityVisualSize = _compactWidthTier switch
             {
-                WidgetCompactWidthTier.Narrow => 24,
-                WidgetCompactWidthTier.Wide when _usesStackedCompactText => 36,
-                _ when _usesStackedCompactText => 34,
-                _ => 28
+                WidgetCompactWidthTier.Narrow => 18,
+                WidgetCompactWidthTier.Wide when _usesStackedCompactText => 22,
+                _ when _usesStackedCompactText => 22,
+                _ => 20
             };
-            identityHitSize = _compactWidthTier == WidgetCompactWidthTier.Narrow ? 34 : 40;
+            identityHitSize = _compactWidthTier == WidgetCompactWidthTier.Narrow ? 24 : 24;
         }
         double identityBaseSize = Math.Max(identityVisualSize, identityHitSize);
         double groupRailWidth = _groupPresentation is not null
@@ -2658,8 +2658,8 @@ public sealed partial class WidgetShell : UserControl
         CompactThumbnailHost.Width = identityVisualSize;
         CompactThumbnailHost.Height = identityVisualSize;
         CompactTitleIcon.IconSize = _compactWidthTier == WidgetCompactWidthTier.Narrow
-            ? 13
-            : _usesStackedCompactText ? 16 : 14;
+            ? 11
+            : _usesStackedCompactText ? 12 : 12;
 
         bool showPrimaryAction = _compactPresentation.ShowPrimaryAction &&
             _compactWidthTier != WidgetCompactWidthTier.Narrow;

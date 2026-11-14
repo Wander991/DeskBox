@@ -20,8 +20,8 @@ public static class WidgetCompactBoundsCalculator
     public const double SummaryWidth = 248;
     public const double SmartWidth = 272;
     public const double SmartMediaWidth = 320;
-    public const double Height = 42;
-    public const double SmartDetailHeight = 52;
+    public const double Height = 26;
+    public const double SmartDetailHeight = 34;
     public const double StandardWidthThreshold = 210;
     public const double WideWidthThreshold = 300;
 

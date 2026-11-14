@@ -8,7 +8,7 @@ namespace DeskBox.Services;
 
 public sealed partial class WidgetManager
 {
-    private const double CapsuleBarEdgeMargin = 12;
+    private const double CapsuleBarEdgeMargin = 0;
 
     /// <summary>
     /// Trailing debounce for the post-restore capsule bar consistency check

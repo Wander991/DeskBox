@@ -544,7 +544,8 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
-                    Spacing="6">
+                    Spacing="6"
+                    Visibility="Collapsed">
                     <StackPanel.RenderTransform>
                         <TranslateTransform x:Name="CompactTextTransform" />
                     </StackPanel.RenderTransform>
@@ -673,7 +674,7 @@
                 x:Name="CompactReorderHandle"
                 Grid.Column="3"
                 Width="18"
-                Height="28"
+                Height="24"
                 Margin="0,0,2,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
