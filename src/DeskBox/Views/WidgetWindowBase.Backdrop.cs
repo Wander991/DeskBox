@@ -34,33 +34,36 @@ public abstract partial class WidgetWindowBase
         SettingsService.Settings.WidgetFaintShadowSkin;
 
     /// <summary>
-    /// Collapsed capsules can be reduced to a single shadow line: no acrylic,
-    /// no mica, no solid tint, no border. Clearing the applied signature makes
-    /// the next expansion rebuild the user's normal material.
+    /// Overlays the collapsed capsule skin ON TOP of the user's normal
+    /// acrylic/mica/solid material. The material must stay attached: clearing
+    /// SystemBackdrop makes the window fall back to an opaque DWM color
+    /// (white in light theme, black in dark) and hides every opacity change.
+    /// Running this after every backdrop pass also makes the skin sliders
+    /// preview immediately, including while the widget is collapsed.
     /// </summary>
     private void ApplyFaintShadowSkinIfNeeded()
     {
-        if (!IsFaintShadowSkinActive)
+        bool active = IsFaintShadowSkinActive;
+        WidgetShellControl.SetFaintShadowSkin(
+            active,
+            SettingsService.Settings.WidgetSkinShadowStrength);
+        if (!active)
         {
-            WidgetShellControl.SetFaintShadowSkin(false);
             return;
         }
 
-        WidgetShellControl.SetFaintShadowSkin(
-            true,
-            SettingsService.Settings.WidgetSkinShadowStrength);
-        ClearSolidColorBackdrop();
-        DetachAcrylicControllerTarget();
-        DetachMicaControllerTarget();
-        SystemBackdrop = null;
-        Win32Helper.DisableAccentPolicy(HWnd);
-        int noneType = Win32Helper.DWMSBT_NONE;
-        Win32Helper.TrySetDwmWindowAttribute(
-            HWnd, Win32Helper.DWMWA_SYSTEMBACKDROP_TYPE, ref noneType);
-        var surface = WidgetShellControl.BackgroundSurface;
-        surface.Background = GetOrUpdateSolidColorBrush(surface.Background, Colors.Transparent);
-        surface.BorderThickness = new Thickness(0);
-        _lastAppliedBackdropSignature = null;
+        // BackgroundSurface is BackgroundPlate. Keep it visible: it becomes
+        // the thin translucent glass layer over the live system material.
+        var plate = WidgetShellControl.BackgroundSurface;
+        plate.Visibility = Visibility.Visible;
+        plate.BorderThickness = new Thickness(0);
+        double opacity = Math.Clamp(WidgetOpacity, 0.0, 1.0);
+        byte alpha = (byte)Math.Clamp(Math.Round(opacity * 120.0), 0.0, 255.0);
+        bool isDark = RootElement.ActualTheme == ElementTheme.Dark;
+        var tint = isDark
+            ? Windows.UI.Color.FromArgb(alpha, 0, 0, 0)
+            : Windows.UI.Color.FromArgb(alpha, 255, 255, 255);
+        plate.Background = GetOrUpdateSolidColorBrush(plate.Background, tint);
     }
 
     protected void ApplyBackdropPreference()
@@ -70,13 +73,17 @@ public abstract partial class WidgetWindowBase
             return;
         }
 
-        if (IsFaintShadowSkinActive)
+        ApplyBackdropPreferenceCore();
+        ApplyFaintShadowSkinIfNeeded();
+    }
+
+    private void ApplyBackdropPreferenceCore()
+    {
+        if (HWnd == IntPtr.Zero || IsClosing)
         {
-            ApplyFaintShadowSkinIfNeeded();
             return;
         }
 
-        WidgetShellControl.SetFaintShadowSkin(false);
         bool isDark = RootElement.ActualTheme == ElementTheme.Dark;
         double surfaceOpacity = Math.Clamp(WidgetOpacity, 0.0, 1.0);
         string requestedMaterialType = SettingsService.Settings.WidgetMaterialType;

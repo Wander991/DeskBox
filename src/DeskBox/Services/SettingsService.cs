@@ -1878,6 +1878,36 @@ settings.FocusClickedWidgetOnRaise = false;
         AppearancePreviewChanged?.Invoke();
     }
 
+    private long _lastStreamingPreviewTicks;
+
+    /// <summary>
+    /// Leading-edge throttled preview for continuous edits (skin sliders).
+    /// The plain debounce only fires after a drag STOPS, so it can never show
+    /// a live effect while the thumb moves. This emits a frame about every
+    /// 55ms while values keep changing and still schedules a trailing frame
+    /// so the final value is never lost.
+    /// </summary>
+    public void RequestAppearancePreviewStreaming()
+    {
+        long now = Environment.TickCount64;
+        long last = System.Threading.Interlocked.Read(ref _lastStreamingPreviewTicks);
+        if (now - last >= 55 &&
+            System.Threading.Interlocked.CompareExchange(
+                ref _lastStreamingPreviewTicks, now, last) == last)
+        {
+            try
+            {
+                _appearancePreviewCts?.Cancel();
+                _appearancePreviewCts?.Dispose();
+            }
+            catch (ObjectDisposedException) { }
+            _appearancePreviewCts = new CancellationTokenSource();
+            AppearancePreviewChanged?.Invoke();
+        }
+
+        RequestAppearancePreview();
+    }
+
     /// <summary>
     /// Applies an appearance-only preview payload from the settings host
     /// (batch 3d follow-up): swap the in-memory graph exactly like

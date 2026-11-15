@@ -479,4 +479,5 @@ public interface IAppearanceSettings
     void SetWidgetFaintShadowSkin(bool enabled);
     double ReadWidgetSkinShadowStrength();
     void SetWidgetSkinShadowStrength(double strength);
+    void SetWidgetSkinOpacity(double opacity);
 }

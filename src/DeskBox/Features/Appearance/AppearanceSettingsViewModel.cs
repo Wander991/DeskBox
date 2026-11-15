@@ -549,6 +549,7 @@ public sealed partial class AppearanceSettingsViewModel : ObservableObject
 
             _widgetOpacity = opacity;
             OnPropertyChanged(nameof(WidgetTransparency));
+            OnPropertyChanged(nameof(WidgetSkinTransparency));
             OnPropertyChanged(nameof(WidgetOpacityValueText));
             if (_isSyncingPresentation)
             {
@@ -568,6 +569,36 @@ public sealed partial class AppearanceSettingsViewModel : ObservableObject
 
     public string WidgetOpacityValueText =>
         $"{Math.Round((1.0 - _widgetOpacity) * 100):0}%";
+
+    /// <summary>
+    /// Skin-page twin of <see cref="WidgetTransparency"/>. It shares the same
+    /// backing opacity but writes through the streaming preview channel, so
+    /// the capsule changes while the slider is being dragged.
+    /// </summary>
+    public double WidgetSkinTransparency
+    {
+        get => 1.0 - _widgetOpacity;
+        set
+        {
+            double opacity = 1.0 - Math.Clamp(value, 0.0, 1.0);
+            if (Math.Abs(opacity - _widgetOpacity) <= EqualityEpsilon)
+            {
+                return;
+            }
+
+            _widgetOpacity = opacity;
+            OnPropertyChanged(nameof(WidgetSkinTransparency));
+            OnPropertyChanged(nameof(WidgetTransparency));
+            OnPropertyChanged(nameof(WidgetOpacityValueText));
+            if (_isSyncingPresentation)
+            {
+                return;
+            }
+
+            _settings.SetWidgetSkinOpacity(opacity);
+            AppearanceValueCommitted?.Invoke();
+        }
+    }
 
     public double MaterialIntensity
     {

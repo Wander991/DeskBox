@@ -438,7 +438,7 @@ public sealed class AppearanceSettingsCoordinator : IAppearanceSettings
         WidgetShellSettingsSlice shell = _settings.Settings.WidgetShell;
         if (shell.WidgetFaintShadowSkin == enabled) return;
         shell.WidgetFaintShadowSkin = enabled;
-        _settings.RequestAppearancePreview();
+        _settings.RequestAppearancePreviewStreaming();
         _settings.SaveDebounced();
     }
 
@@ -455,7 +455,18 @@ public sealed class AppearanceSettingsCoordinator : IAppearanceSettings
         WidgetShellSettingsSlice shell = _settings.Settings.WidgetShell;
         if (Math.Abs(shell.WidgetSkinShadowStrength - normalized) <= 0.0001) return;
         shell.WidgetSkinShadowStrength = normalized;
-        _settings.RequestAppearancePreview();
+        _settings.RequestAppearancePreviewStreaming();
+        _settings.SaveDebounced();
+    }
+
+    public void SetWidgetSkinOpacity(double opacity)
+    {
+        ThrowIfStopped();
+        double normalized = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.8d, 0.0d, 1.0d);
+        WidgetShellSettingsSlice shell = _settings.Settings.WidgetShell;
+        if (Math.Abs(shell.WidgetOpacity - normalized) <= 0.0001) return;
+        shell.WidgetOpacity = normalized;
+        _settings.RequestAppearancePreviewStreaming();
         _settings.SaveDebounced();
     }
 

@@ -352,23 +352,26 @@ Text="DeskBox" />
                     <DataTemplate x:Key="WidgetSkinSectionTemplate" x:DataType="viewModels:SettingsViewModel">
                         <StackPanel x:Name="WidgetSkinSection" Visibility="Collapsed" Style="{StaticResource SectionPanelStyle}">
                             <TextBlock Text="格子皮肤" Style="{StaticResource SectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level1" />
-                            <TextBlock Text="收起态只保留一条浅浅的阴影，隐藏深色背景与蓝色小图标；展开态外观不受影响。" Opacity="0.7" TextWrapping="Wrap" Margin="0,8,0,4" />
+                            <TextBlock Text="收起态保留磨砂 / 云母 / 纯色的半透明质感，隐藏蓝色小图标与文字，只叠加一条可调深浅的阴影；展开态外观不受影响。拖动滑块时实时预览。" Opacity="0.7" TextWrapping="Wrap" Margin="0,8,0,4" />
                             <toolkit:SettingsExpander Header="胶囊皮肤" Description="收起态视觉风格">
                                 <toolkit:SettingsExpander.HeaderIcon>
                                     <FontIcon Glyph="&#xE790;" />
                                 </toolkit:SettingsExpander.HeaderIcon>
                                 <ToggleSwitch IsOn="{Binding WidgetFaintShadowSkin, Mode=TwoWay}" OnContent="浅影" OffContent="经典" />
                                 <toolkit:SettingsExpander.Items>
+                                    <toolkit:SettingsCard Header="格子材质" Description="磨砂 / 云母 / 纯色，切换即时生效" HorizontalContentAlignment="Right">
+                                        <ComboBox MinWidth="{StaticResource SettingsControlMinWidth}" ItemsSource="{Binding AvailableMaterialTypeOptions}" controls:SettingsComboBox.Value="{Binding MaterialType, Mode=TwoWay}" />
+                                    </toolkit:SettingsCard>
                                     <toolkit:SettingsCard Header="阴影强度" Description="浅影皮肤的阴影深浅" HorizontalContentAlignment="Right">
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetSkinShadowStrengthText}" />
                                             <Slider Minimum="0" Maximum="1" StepFrequency="0.05" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinShadowStrength, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
                                         </StackPanel>
                                     </toolkit:SettingsCard>
-                                    <toolkit:SettingsCard Header="格子透明度" Description="展开格子的背景透明度，与外观-材质共用同一设置" HorizontalContentAlignment="Right">
+                                    <toolkit:SettingsCard Header="格子透明度" Description="0% 不透明，100% 完全透明；拖动时实时预览" HorizontalContentAlignment="Right">
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetOpacityValueText}" />
-                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetTransparency, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
+                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinTransparency, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
                                         </StackPanel>
                                     </toolkit:SettingsCard>
                                 </toolkit:SettingsExpander.Items>

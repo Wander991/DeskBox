@@ -80,11 +80,11 @@
             CornerRadius="0,0,8,8"
             IsHitTestVisible="False"
             Visibility="Collapsed"
-            Opacity="0.35">
+            Opacity="1">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="#00000000" Offset="0" />
-                    <GradientStop Color="#33000000" Offset="1" />
+                    <GradientStop x:Name="CompactFaintShadowStop" Color="#AA000000" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
         </Border>

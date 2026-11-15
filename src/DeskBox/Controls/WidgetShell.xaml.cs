@@ -4791,9 +4791,14 @@ public sealed partial class WidgetShell : UserControl
             ? Math.Clamp(shadowStrength, 0.0, 1.0)
             : 0.35;
         CompactFaintShadow.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
-        CompactFaintShadow.Opacity = strength;
+        CompactFaintShadow.Opacity = 1;
+        CompactFaintShadowStop.Color = Windows.UI.Color.FromArgb(
+            (byte)Math.Round(strength * 170.0), 0, 0, 0);
         CollapsedChromeLayer.Opacity = enabled ? 0 : 1;
-        BackgroundPlate.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
+        // BackgroundPlate doubles as BackgroundSurface and carries the frame
+        // border; hiding it exposed the raw DWM window color. Keep it visible
+        // so the translucent glass layer in the backdrop pass can render.
+        BackgroundPlate.Visibility = Visibility.Visible;
     }
 
     /// <summary>Swaps the collapse button between "collapse" and "pinned open".</summary>

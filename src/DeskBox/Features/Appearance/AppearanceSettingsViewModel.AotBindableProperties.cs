@@ -93,6 +93,7 @@ namespace DeskBox.Features.Appearance;
     nameof(WidgetSkinShadowStrengthText),
     nameof(WidgetOpacityValueText),
     nameof(WidgetTransparency),
+    nameof(WidgetSkinTransparency),
     nameof(Windows10Compatibility),
     nameof(Windows10CompatibilityMessage),
     nameof(Windows10CompatibilityTitle)
