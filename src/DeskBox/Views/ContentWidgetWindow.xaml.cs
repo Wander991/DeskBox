@@ -663,9 +663,19 @@ public sealed partial class ContentWidgetWindow : WidgetWindowBase, IDesktopWidg
         }
         else
         {
+            // Native Mica/Acrylic backdrops ignore the app's widgetOpacity, so
+            // the surface itself carries the translucent glass layer. This one
+            // computation serves BOTH expanded widgets and collapsed capsules,
+            // which is what makes the "格子透明度" slider visible while dragging.
+            // 0% transparency (opacity=1) => dense tint; 100% (opacity=0) =>
+            // a fully clear surface over the live system backdrop.
+            byte glassAlpha = (byte)Math.Round(Math.Clamp(surfaceOpacity * 210.0, 0.0, 255.0));
+            var glassTint = isDark
+                ? Windows.UI.Color.FromArgb(glassAlpha, 0, 0, 0)
+                : Windows.UI.Color.FromArgb(glassAlpha, 255, 255, 255);
             ContentWidgetShell.BackgroundSurface.Background = GetOrUpdateSolidColorBrush(
                 ContentWidgetShell.BackgroundSurface.Background,
-                Colors.Transparent);
+                glassTint);
         }
 
         var (borderThickness, borderColor, dividerColor) = GetWidgetBorderVisuals(isDark, accentColor);

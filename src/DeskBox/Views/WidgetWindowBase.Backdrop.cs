@@ -52,18 +52,13 @@ public abstract partial class WidgetWindowBase
             return;
         }
 
-        // BackgroundSurface is BackgroundPlate. Keep it visible: it becomes
-        // the thin translucent glass layer over the live system material.
+        // BackgroundSurface is BackgroundPlate. The glass tint itself is owned
+        // by ContentWidgetWindow.ApplySurfaceStyle() so collapsed and expanded
+        // widgets share ONE computation regardless of the order in which the
+        // backdrop/content passes run. Here we only keep the plate usable.
         var plate = WidgetShellControl.BackgroundSurface;
         plate.Visibility = Visibility.Visible;
         plate.BorderThickness = new Thickness(0);
-        double opacity = Math.Clamp(WidgetOpacity, 0.0, 1.0);
-        byte alpha = (byte)Math.Clamp(Math.Round(opacity * 120.0), 0.0, 255.0);
-        bool isDark = RootElement.ActualTheme == ElementTheme.Dark;
-        var tint = isDark
-            ? Windows.UI.Color.FromArgb(alpha, 0, 0, 0)
-            : Windows.UI.Color.FromArgb(alpha, 255, 255, 255);
-        plate.Background = GetOrUpdateSolidColorBrush(plate.Background, tint);
     }
 
     protected void ApplyBackdropPreference()
@@ -92,10 +87,18 @@ public abstract partial class WidgetWindowBase
         var tintColor = materialType == SettingsService.WidgetMaterialTypeSolid
             ? BuildSolidColorBackdropTintColor(isDark, surfaceOpacity)
             : BuildNativeBackdropTintColor(isDark);
+        // Mica/MicaAlt are opaque system materials that ignore surfaceOpacity;
+        // including it forced a full controller rebuild on every streaming
+        // preview frame while dragging the transparency slider. The glass
+        // layer in ApplySurfaceStyle() is what actually renders the opacity.
+        double signatureOpacity = materialType == SettingsService.WidgetMaterialTypeSolid ||
+            SettingsService.IsAcrylicMaterial(materialType)
+                ? Math.Round(surfaceOpacity, 3)
+                : 0.0;
         var signature = new BackdropSignature(
             isDark,
             materialType,
-            Math.Round(surfaceOpacity, 3),
+            signatureOpacity,
             tintColor,
             Math.Round(SettingsService.Settings.WidgetMaterialIntensity, 3));
 

@@ -362,16 +362,16 @@ Text="DeskBox" />
                                     <toolkit:SettingsCard Header="格子材质" Description="磨砂 / 云母 / 纯色，切换即时生效" HorizontalContentAlignment="Right">
                                         <ComboBox MinWidth="{StaticResource SettingsControlMinWidth}" ItemsSource="{Binding AvailableMaterialTypeOptions}" controls:SettingsComboBox.Value="{Binding MaterialType, Mode=TwoWay}" />
                                     </toolkit:SettingsCard>
-                                    <toolkit:SettingsCard Header="阴影强度" Description="浅影皮肤的阴影深浅" HorizontalContentAlignment="Right">
+                                    <toolkit:SettingsCard Header="阴影强度" Description="收起胶囊的阴影深浅，拖动即时生效" HorizontalContentAlignment="Right">
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetSkinShadowStrengthText}" />
-                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.05" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinShadowStrength, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
+                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.05" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinShadowStrength, Mode=TwoWay}" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
                                         </StackPanel>
                                     </toolkit:SettingsCard>
-                                    <toolkit:SettingsCard Header="格子透明度" Description="0% 不透明，100% 完全透明；拖动时实时预览" HorizontalContentAlignment="Right">
+                                    <toolkit:SettingsCard Header="格子透明度" Description="0% 不透明，100% 最透明；展开与收起都生效，拖动即时预览" HorizontalContentAlignment="Right">
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetOpacityValueText}" />
-                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinTransparency, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
+                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinTransparency, Mode=TwoWay}" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
                                         </StackPanel>
                                     </toolkit:SettingsCard>
                                 </toolkit:SettingsExpander.Items>

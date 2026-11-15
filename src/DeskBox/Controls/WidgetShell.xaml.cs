@@ -4792,8 +4792,13 @@ public sealed partial class WidgetShell : UserControl
             : 0.35;
         CompactFaintShadow.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
         CompactFaintShadow.Opacity = 1;
+        // The collapsed capsule is only 12 px tall, so a 170/255 ceiling made
+        // the slider almost invisible. Scale the whole gradient instead, with
+        // a faint top tint too, so 0% and 100% are unmistakably different.
         CompactFaintShadowStop.Color = Windows.UI.Color.FromArgb(
-            (byte)Math.Round(strength * 170.0), 0, 0, 0);
+            (byte)Math.Round(strength * 255.0), 0, 0, 0);
+        CompactFaintShadowTopStop.Color = Windows.UI.Color.FromArgb(
+            (byte)Math.Round(strength * 55.0), 0, 0, 0);
         CollapsedChromeLayer.Opacity = enabled ? 0 : 1;
         // BackgroundPlate doubles as BackgroundSurface and carries the frame
         // border; hiding it exposed the raw DWM window color. Keep it visible
