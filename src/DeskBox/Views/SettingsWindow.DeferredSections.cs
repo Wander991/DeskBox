@@ -206,6 +206,7 @@ public sealed partial class SettingsWindow
         // editor; {Binding} markup resolves through its generated custom
         // property provider under Native AOT.
         if (sectionTag is "Appearance" or
+            "WidgetSkin" or
             "AppearanceMaterialSettings" or
             "AppearanceDensitySettings" or
             "AppearanceWindowSettings" or

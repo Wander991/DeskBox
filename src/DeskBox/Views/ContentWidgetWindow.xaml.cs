@@ -1317,7 +1317,11 @@ IsHideAnimationRunning = true;
         AutomationProperties.SetName(ContentWidgetShell.AddActionButton, localization.T("Widget.Tooltip.Add"));
         AutomationProperties.SetName(ContentWidgetShell.MoreActionButton, localization.T("Widget.Tooltip.More"));
         AutomationProperties.SetName(ContentWidgetShell.CloseActionButton, localization.T("Widget.FeatureWidget.Disable"));
-        AutomationProperties.SetName(ContentWidgetShell.CollapseActionButton, localization.T("Widget.Shell.Collapse"));
+        AutomationProperties.SetName(
+            ContentWidgetShell.CollapseActionButton,
+            IsAlwaysExpandedPinned
+                ? "始终展开中 · 点击收起"
+                : localization.T("Widget.Shell.Collapse"));
     }
 
     private void SetupEventHandlers()

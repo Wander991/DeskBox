@@ -2236,6 +2236,15 @@ settings.FocusClickedWidgetOnRaise = false;
             changed = true;
         }
 
+        double normalizedSkinShadowStrength = double.IsFinite(settings.WidgetSkinShadowStrength)
+            ? Math.Clamp(settings.WidgetSkinShadowStrength, 0.0, 1.0)
+            : 0.35;
+        if (Math.Abs(settings.WidgetSkinShadowStrength - normalizedSkinShadowStrength) > 0.0001)
+        {
+            settings.WidgetSkinShadowStrength = normalizedSkinShadowStrength;
+            changed = true;
+        }
+
         if (settings.WidgetCornerPreference is not (
             WidgetCornerPreferenceSquare or
             WidgetCornerPreferenceSmall or

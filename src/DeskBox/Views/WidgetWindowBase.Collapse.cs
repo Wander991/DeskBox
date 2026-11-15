@@ -163,6 +163,8 @@ public abstract partial class WidgetWindowBase
     private bool _restoreDesktopLayerAfterExpandedState;
     private int _compactLayerRestoreCommittedFrames;
     private bool _isSmartPinnedOpen;
+    private bool _isAlwaysExpandedPinned;
+    protected bool IsAlwaysExpandedPinned => _isAlwaysExpandedPinned;
     private bool _isCompactExpansionWarmupRunning;
     private bool _isCompactExpansionWarmupUrgent;
     private bool _isCompactExpansionWarmed;
@@ -705,6 +707,10 @@ public abstract partial class WidgetWindowBase
         }
 
         _collapseInitialized = true;
+        _isAlwaysExpandedPinned =
+            Config.Metadata.TryGetValue("AlwaysExpanded", out string? pinnedValue) &&
+            pinnedValue == "true";
+        WidgetShellControl.SetAlwaysExpandedPinned(_isAlwaysExpandedPinned);
         WidgetShellControl.CollapseRequested += WidgetShellControl_CollapseRequested;
         WidgetShellControl.ExpandRequested += WidgetShellControl_ExpandRequested;
         WidgetShellControl.OverlayDragCueArmRequested += WidgetShellControl_OverlayDragCueArmRequested;
@@ -733,12 +739,16 @@ public abstract partial class WidgetWindowBase
         RefreshCompactPresentation();
         ApplyCompactTooltips();
         ApplyCollapseBehaviorVisuals();
-        bool initiallyCollapsed = EffectiveCollapseBehavior switch
+        bool initiallyCollapsed = _isAlwaysExpandedPinned ? false : EffectiveCollapseBehavior switch
         {
             WidgetCollapseBehavior.Smart => true,
             WidgetCollapseBehavior.Click => Config.IsCollapsed,
             _ => false
         };
+        if (_isAlwaysExpandedPinned)
+        {
+            _isSmartPinnedOpen = true;
+        }
         ApplyCollapsedStateImmediately(initiallyCollapsed);
         ObserveCompactOverrides();
         QueueCompactExpansionWarmup();
@@ -2140,7 +2150,39 @@ public abstract partial class WidgetWindowBase
     {
         CancelTimer(ref _collapseHoverTimer);
         CancelTimer(ref _collapseLeaveTimer);
+        if (!_isAlwaysExpandedPinned)
+        {
+            // First click: pin the widget open so it can never auto-collapse.
+            SetAlwaysExpandedPinned(true);
+            return;
+        }
+
+        // Second click: unpin and collapse into the faint-shadow capsule.
+        SetAlwaysExpandedPinned(false);
         CollapseWidgetFromHost();
+    }
+
+    private void SetAlwaysExpandedPinned(bool pinned)
+    {
+        _isAlwaysExpandedPinned = pinned;
+        _isSmartPinnedOpen = pinned;
+        WidgetShellControl.SetAlwaysExpandedPinned(pinned);
+        if (pinned)
+        {
+            Config.Metadata["AlwaysExpanded"] = "true";
+            if (_targetCollapsed)
+            {
+                SetCollapsedState(false, persistManualState: true, animate: true);
+            }
+        }
+        else
+        {
+            Config.Metadata.Remove("AlwaysExpanded");
+        }
+
+        SettingsService.UpdateWidget(Config, notifySubscribers: false);
+        SettingsService.SaveDebounced(notifySubscribers: false);
+        ApplyCompactTooltips();
     }
 
     private void WidgetShellControl_ExpandRequested(object? sender, RoutedEventArgs e)
@@ -4652,7 +4694,8 @@ public abstract partial class WidgetWindowBase
 
     private void ScheduleSmartCollapse(int? delayMs = null)
     {
-        if (!UsesSmartCollapseBehavior() || _isSmartPinnedOpen || _targetCollapsed)
+        if (!UsesSmartCollapseBehavior() || _isSmartPinnedOpen ||
+            _isAlwaysExpandedPinned || _targetCollapsed)
         {
             return;
         }
@@ -4662,7 +4705,8 @@ public abstract partial class WidgetWindowBase
             SettingsService.Settings.WidgetCompactCollapseDelayMs);
         ScheduleTimer(ref _collapseLeaveTimer, effectiveDelay, () =>
         {
-            if (!UsesSmartCollapseBehavior() || _isSmartPinnedOpen || _targetCollapsed)
+            if (!UsesSmartCollapseBehavior() || _isSmartPinnedOpen ||
+                _isAlwaysExpandedPinned || _targetCollapsed)
             {
                 return;
             }
@@ -4700,7 +4744,7 @@ public abstract partial class WidgetWindowBase
     {
         return new WidgetCompactInteractionSnapshot(
             IsCollapsed: _targetCollapsed,
-            IsPinned: _isSmartPinnedOpen,
+            IsPinned: _isSmartPinnedOpen || _isAlwaysExpandedPinned,
             IsPointerInside: _isPointerOverWidget,
             IsExpansionZoneActive: _isPointerOverCompactExpansionZone,
             IsPointerOverMoveHandle: _isPointerOverCompactMoveHandle,

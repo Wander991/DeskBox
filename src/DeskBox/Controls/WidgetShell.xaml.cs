@@ -2038,7 +2038,7 @@ public sealed partial class WidgetShell : UserControl
         {
             double compactOpacity =
                 _compactTransitionProfile.GetCompactSurfaceOpacity(collapsed, value);
-            CollapsedChromeLayer.Opacity = compactOpacity;
+            CollapsedChromeLayer.Opacity = _faintShadowSkinEnabled ? 0 : compactOpacity;
 
             // Expansion reveals the already-laid-out live tree as the physical
             // window grows. Collapse may still fade that tree beneath the incoming
@@ -4526,9 +4526,12 @@ public sealed partial class WidgetShell : UserControl
             ShellContentPresenter.Visibility = Visibility.Collapsed;
             OverlayChromeLayer.Visibility = Visibility.Collapsed;
             CollapsedChromeLayer.Visibility = Visibility.Visible;
+            // Blue/color title icons are never shown in the collapsed state.
+            CompactIdentityVisualHost.Visibility = Visibility.Collapsed;
             return;
         }
 
+        CompactIdentityVisualHost.Visibility = Visibility.Visible;
         CollapsedChromeLayer.Visibility = Visibility.Collapsed;
         ShellContentPresenter.Visibility = Visibility.Visible;
         ShellRoot.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
@@ -4772,6 +4775,34 @@ public sealed partial class WidgetShell : UserControl
             app.SettingsService is null ||
             PerformanceSettingsPolicy.Resolve(app.SettingsService.Settings)
                 .AllowCompactAmbientAnimations;
+    }
+
+    private bool _faintShadowSkinEnabled;
+
+    /// <summary>
+    /// Minimal capsule skin: hide every compact visual and leave only the
+    /// soft bottom shadow line. Pointer hit testing is preserved because
+    /// opacity zero does not remove an element from the input tree.
+    /// </summary>
+    public void SetFaintShadowSkin(bool enabled, double shadowStrength = 0.35)
+    {
+        _faintShadowSkinEnabled = enabled;
+        double strength = double.IsFinite(shadowStrength)
+            ? Math.Clamp(shadowStrength, 0.0, 1.0)
+            : 0.35;
+        CompactFaintShadow.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+        CompactFaintShadow.Opacity = strength;
+        CollapsedChromeLayer.Opacity = enabled ? 0 : 1;
+        BackgroundPlate.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    /// <summary>Swaps the collapse button between "collapse" and "pinned open".</summary>
+    public void SetAlwaysExpandedPinned(bool pinned)
+    {
+        CollapseButtonIcon.Glyph = pinned ? "\uE718" : "\uE70E";
+        string label = pinned ? "始终展开中 · 点击收起" : "收起格子";
+        AutomationProperties.SetName(CollapseButton, label);
+        ToolTipService.SetToolTip(CollapseButton, label);
     }
 
     private void CollapseButton_Click(object sender, RoutedEventArgs e) => CollapseRequested?.Invoke(this, e);

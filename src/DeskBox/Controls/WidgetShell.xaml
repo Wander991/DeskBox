@@ -71,6 +71,24 @@
             </Grid>
         </Border>
 
+        <!-- Faint-shadow skin: the only visible chrome while collapsed. -->
+        <Border
+            x:Name="CompactFaintShadow"
+            Grid.RowSpan="2"
+            Height="8"
+            VerticalAlignment="Bottom"
+            CornerRadius="0,0,8,8"
+            IsHitTestVisible="False"
+            Visibility="Collapsed"
+            Opacity="0.35">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#00000000" Offset="0" />
+                    <GradientStop Color="#33000000" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
         <Grid
             x:Name="TitleBarGrid"
             Grid.Row="0"
@@ -205,7 +223,7 @@
                             x:Name="CollapseButton"
                             Click="CollapseButton_Click"
                             Style="{StaticResource WidgetTitleActionButtonStyle}">
-                            <FontIcon FontSize="12" Glyph="&#xE70E;" />
+                            <FontIcon x:Name="CollapseButtonIcon" FontSize="12" Glyph="&#xE70E;" />
                         </Button>
                     </StackPanel>
                 </Grid>

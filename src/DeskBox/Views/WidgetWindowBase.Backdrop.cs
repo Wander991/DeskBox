@@ -29,6 +29,40 @@ public abstract partial class WidgetWindowBase
         Windows.UI.Color TintColor,
         double MaterialIntensity);
 
+    private bool IsFaintShadowSkinActive =>
+        (_targetCollapsed || IsWidgetCollapsedBoundsActive) &&
+        SettingsService.Settings.WidgetFaintShadowSkin;
+
+    /// <summary>
+    /// Collapsed capsules can be reduced to a single shadow line: no acrylic,
+    /// no mica, no solid tint, no border. Clearing the applied signature makes
+    /// the next expansion rebuild the user's normal material.
+    /// </summary>
+    private void ApplyFaintShadowSkinIfNeeded()
+    {
+        if (!IsFaintShadowSkinActive)
+        {
+            WidgetShellControl.SetFaintShadowSkin(false);
+            return;
+        }
+
+        WidgetShellControl.SetFaintShadowSkin(
+            true,
+            SettingsService.Settings.WidgetSkinShadowStrength);
+        ClearSolidColorBackdrop();
+        DetachAcrylicControllerTarget();
+        DetachMicaControllerTarget();
+        SystemBackdrop = null;
+        Win32Helper.DisableAccentPolicy(HWnd);
+        int noneType = Win32Helper.DWMSBT_NONE;
+        Win32Helper.TrySetDwmWindowAttribute(
+            HWnd, Win32Helper.DWMWA_SYSTEMBACKDROP_TYPE, ref noneType);
+        var surface = WidgetShellControl.BackgroundSurface;
+        surface.Background = GetOrUpdateSolidColorBrush(surface.Background, Colors.Transparent);
+        surface.BorderThickness = new Thickness(0);
+        _lastAppliedBackdropSignature = null;
+    }
+
     protected void ApplyBackdropPreference()
     {
         if (HWnd == IntPtr.Zero || IsClosing)
@@ -36,6 +70,13 @@ public abstract partial class WidgetWindowBase
             return;
         }
 
+        if (IsFaintShadowSkinActive)
+        {
+            ApplyFaintShadowSkinIfNeeded();
+            return;
+        }
+
+        WidgetShellControl.SetFaintShadowSkin(false);
         bool isDark = RootElement.ActualTheme == ElementTheme.Dark;
         double surfaceOpacity = Math.Clamp(WidgetOpacity, 0.0, 1.0);
         string requestedMaterialType = SettingsService.Settings.WidgetMaterialType;
@@ -412,6 +453,12 @@ public abstract partial class WidgetWindowBase
         }
 
         var surface = WidgetShellControl.BackgroundSurface;
+        if (IsFaintShadowSkinActive)
+        {
+            surface.BorderThickness = new Thickness(0);
+            return;
+        }
+
         surface.BorderThickness = new Thickness(borderThickness);
         surface.BorderBrush = GetOrUpdateSolidColorBrush(surface.BorderBrush, borderColor);
     }

@@ -191,6 +191,8 @@ public sealed partial class AppearanceSettingsViewModel : ObservableObject
     private string _widgetBackgroundUnifiedFit = WidgetBackgroundKinds.FitFill;
     private double _widgetBackgroundDimPercent = WidgetBackgroundKinds.DefaultDimPercent;
     private bool _widgetTextShadowEnabled;
+    private bool _widgetFaintShadowSkin = true;
+    private double _widgetSkinShadowStrength = 0.35;
     private string[]? _cachedWidgetBackgroundModeNames;
     private string[]? _cachedWidgetBackgroundUnifiedFitNames;
 
@@ -820,6 +822,53 @@ public sealed partial class AppearanceSettingsViewModel : ObservableObject
             AppearanceValueCommitted?.Invoke();
         }
     }
+
+    /// <summary>Minimal faint-shadow skin for collapsed capsules.</summary>
+    public bool WidgetFaintShadowSkin
+    {
+        get => _widgetFaintShadowSkin;
+        set
+        {
+            if (!SetProperty(ref _widgetFaintShadowSkin, value))
+            {
+                return;
+            }
+
+            if (_isSyncingPresentation)
+            {
+                return;
+            }
+
+            _settings.SetWidgetFaintShadowSkin(value);
+            AppearanceValueCommitted?.Invoke();
+        }
+    }
+
+    /// <summary>Strength of the collapsed capsule shadow line.</summary>
+    public double WidgetSkinShadowStrength
+    {
+        get => _widgetSkinShadowStrength;
+        set
+        {
+            double clamped = Math.Clamp(double.IsFinite(value) ? value : 0.35, 0.0, 1.0);
+            if (!SetProperty(ref _widgetSkinShadowStrength, clamped))
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(WidgetSkinShadowStrengthText));
+            if (_isSyncingPresentation)
+            {
+                return;
+            }
+
+            _settings.SetWidgetSkinShadowStrength(clamped);
+            AppearanceValueCommitted?.Invoke();
+        }
+    }
+
+    public string WidgetSkinShadowStrengthText =>
+        $"{Math.Round(_widgetSkinShadowStrength * 100):0}%";
 
     /// <summary>
     /// Removes every per-widget background override; the settings page's
@@ -1960,6 +2009,8 @@ public sealed partial class AppearanceSettingsViewModel : ObservableObject
             WidgetBackgroundUnifiedFit = widgetBackground.UnifiedFit;
             WidgetBackgroundDimPercent = widgetBackground.DimPercent;
             WidgetTextShadowEnabled = _settings.ReadWidgetTextShadowEnabled();
+            WidgetFaintShadowSkin = _settings.ReadWidgetFaintShadowSkin();
+            WidgetSkinShadowStrength = _settings.ReadWidgetSkinShadowStrength();
 
             LayoutDensity = density.LayoutDensity;
             IconSize = density.IconSize;

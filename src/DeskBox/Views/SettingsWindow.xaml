@@ -219,6 +219,17 @@ Text="DeskBox" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem
+                    Tag="WidgetSkin"
+                    Content="格子皮肤">
+                    <NavigationViewItem.Icon>
+                        <ImageIcon Style="{StaticResource SettingsNavImageIconStyle}">
+                            <ImageIcon.Source>
+                                <media:SvgImageSource UriSource="ms-appx:///Assets/SettingsNavIcons/appearance.svg" />
+                            </ImageIcon.Source>
+                        </ImageIcon>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
                     x:Name="CapsuleModeNavItem"
                     Tag="CapsuleMode"
                     svc:Localized.Key="Settings.Nav.CapsuleMode">
@@ -337,6 +348,32 @@ Text="DeskBox" />
                 <StackPanel.Resources>
                     <DataTemplate x:Key="AppearanceSectionTemplate" x:DataType="viewModels:SettingsViewModel">
                         <sections:AppearanceSettingsSection x:Name="AppearanceSection" Visibility="Collapsed" NavigationRequested="SettingsSection_NavigationRequested" />
+                    </DataTemplate>
+                    <DataTemplate x:Key="WidgetSkinSectionTemplate" x:DataType="viewModels:SettingsViewModel">
+                        <StackPanel x:Name="WidgetSkinSection" Visibility="Collapsed" Style="{StaticResource SectionPanelStyle}">
+                            <TextBlock Text="格子皮肤" Style="{StaticResource SectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level1" />
+                            <TextBlock Text="收起态只保留一条浅浅的阴影，隐藏深色背景与蓝色小图标；展开态外观不受影响。" Opacity="0.7" TextWrapping="Wrap" Margin="0,8,0,4" />
+                            <toolkit:SettingsExpander Header="胶囊皮肤" Description="收起态视觉风格">
+                                <toolkit:SettingsExpander.HeaderIcon>
+                                    <FontIcon Glyph="&#xE790;" />
+                                </toolkit:SettingsExpander.HeaderIcon>
+                                <ToggleSwitch IsOn="{Binding WidgetFaintShadowSkin, Mode=TwoWay}" OnContent="浅影" OffContent="经典" />
+                                <toolkit:SettingsExpander.Items>
+                                    <toolkit:SettingsCard Header="阴影强度" Description="浅影皮肤的阴影深浅" HorizontalContentAlignment="Right">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                            <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetSkinShadowStrengthText}" />
+                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.05" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetSkinShadowStrength, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
+                                        </StackPanel>
+                                    </toolkit:SettingsCard>
+                                    <toolkit:SettingsCard Header="格子透明度" Description="展开格子的背景透明度，与外观-材质共用同一设置" HorizontalContentAlignment="Right">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                            <TextBlock Style="{StaticResource SliderSettingValueTextStyle}" Text="{Binding WidgetOpacityValueText}" />
+                                            <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Style="{StaticResource InlineMetricSliderStyle}" Value="{Binding WidgetTransparency, Mode=TwoWay}" ManipulationMode="TranslateX" ManipulationStarted="AppearanceSlider_ManipulationStarted" ManipulationCompleted="AppearanceSlider_ManipulationCompleted" ValueChanged="AppearanceSlider_ValueChanged" PointerPressed="AppearanceSlider_PointerPressed" PointerReleased="AppearanceSlider_PointerReleased" LostFocus="AppearanceSlider_LostFocus" />
+                                        </StackPanel>
+                                    </toolkit:SettingsCard>
+                                </toolkit:SettingsExpander.Items>
+                            </toolkit:SettingsExpander>
+                        </StackPanel>
                     </DataTemplate>
                     <DataTemplate x:Key="AppearanceMaterialSettingsSectionTemplate" x:DataType="viewModels:SettingsViewModel">
                         <StackPanel

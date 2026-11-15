@@ -16,6 +16,12 @@ public sealed class WidgetShellSettingsSlice
     /// </summary>
     public double WidgetOpacity { get; set; } = 0.80;
 
+    /// <summary>Use the minimal faint-shadow skin while a widget is collapsed.</summary>
+    public bool WidgetFaintShadowSkin { get; set; } = true;
+
+    /// <summary>Strength of the collapsed capsule shadow line (0.0 - 1.0).</summary>
+    public double WidgetSkinShadowStrength { get; set; } = 0.35;
+
     /// <summary>
     /// Material type for widget window backdrops.
     /// Valid values: <c>"Mica"</c>, <c>"MicaAlt"</c>, <c>"Acrylic"</c>,

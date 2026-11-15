@@ -427,6 +427,38 @@ public sealed class AppearanceSettingsCoordinator : IAppearanceSettings
     /// Removes every per-widget background override (metadata plus stored
     /// asset files) so all widgets follow the global background mode again.
     /// </summary>
+    public bool ReadWidgetFaintShadowSkin()
+    {
+        return _settings.Settings.WidgetShell.WidgetFaintShadowSkin;
+    }
+
+    public void SetWidgetFaintShadowSkin(bool enabled)
+    {
+        ThrowIfStopped();
+        WidgetShellSettingsSlice shell = _settings.Settings.WidgetShell;
+        if (shell.WidgetFaintShadowSkin == enabled) return;
+        shell.WidgetFaintShadowSkin = enabled;
+        _settings.RequestAppearancePreview();
+        _settings.SaveDebounced();
+    }
+
+    public double ReadWidgetSkinShadowStrength()
+    {
+        return _settings.Settings.WidgetShell.WidgetSkinShadowStrength;
+    }
+
+    public void SetWidgetSkinShadowStrength(double strength)
+    {
+        ThrowIfStopped();
+        if (!double.IsFinite(strength)) return;
+        double normalized = Normalize(strength, 0.05d, 0.0d, 1.0d);
+        WidgetShellSettingsSlice shell = _settings.Settings.WidgetShell;
+        if (Math.Abs(shell.WidgetSkinShadowStrength - normalized) <= 0.0001) return;
+        shell.WidgetSkinShadowStrength = normalized;
+        _settings.RequestAppearancePreview();
+        _settings.SaveDebounced();
+    }
+
     public bool ReadWidgetTextShadowEnabled()
     {
         return _settings.Settings.WidgetShell.WidgetTextShadowEnabled;

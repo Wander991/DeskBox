@@ -474,4 +474,9 @@ public interface IAppearanceSettings
 
     bool ReadWidgetTextShadowEnabled();
     void SetWidgetTextShadowEnabled(bool enabled);
+
+    bool ReadWidgetFaintShadowSkin();
+    void SetWidgetFaintShadowSkin(bool enabled);
+    double ReadWidgetSkinShadowStrength();
+    void SetWidgetSkinShadowStrength(double strength);
 }

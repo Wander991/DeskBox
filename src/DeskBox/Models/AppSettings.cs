@@ -349,6 +349,12 @@ public class AppSettings
     /// <inheritdoc cref="WidgetShellSettingsSlice.WidgetOpacity"/>
     public double WidgetOpacity { get => WidgetShell.WidgetOpacity; set => WidgetShell.WidgetOpacity = value; }
 
+    /// <inheritdoc cref="WidgetShellSettingsSlice.WidgetFaintShadowSkin"/>
+    public bool WidgetFaintShadowSkin { get => WidgetShell.WidgetFaintShadowSkin; set => WidgetShell.WidgetFaintShadowSkin = value; }
+
+    /// <inheritdoc cref="WidgetShellSettingsSlice.WidgetSkinShadowStrength"/>
+    public double WidgetSkinShadowStrength { get => WidgetShell.WidgetSkinShadowStrength; set => WidgetShell.WidgetSkinShadowStrength = value; }
+
     /// <inheritdoc cref="WidgetShellSettingsSlice.WidgetMaterialType"/>
     public string WidgetMaterialType { get => WidgetShell.WidgetMaterialType; set => WidgetShell.WidgetMaterialType = value; }
 
