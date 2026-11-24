@@ -3780,7 +3780,11 @@ public partial class App : Application
                 // stale argument (an unexpected toggle/open-storage).
                 // Running the same handler drains those files harmlessly —
                 // no event means no envelope work, just the file take.
-                await HandleExternalActivationAsync();
+                // On a startup launch there is no user behind this call, so
+                // skip the interactive fallback: without this the drain
+                // replays a bare activation and pops the settings window on
+                // every boot.
+                await HandleExternalActivationAsync(allowInteractiveFallback: !IsStartupMode);
             }
         }
         finally
@@ -3789,7 +3793,7 @@ public partial class App : Application
         }
     }
 
-    private async Task HandleExternalActivationAsync()
+    private async Task HandleExternalActivationAsync(bool allowInteractiveFallback = true)
     {
         // An activation racing shutdown would re-show windows the teardown
         // sequence just closed (it runs after the settings-window step has
@@ -3847,6 +3851,17 @@ public partial class App : Application
 
                 if (activationHandled)
                 {
+                    continue;
+                }
+
+                if (!allowInteractiveFallback)
+                {
+                    // Startup drain with no queued activation: skip the
+                    // interactive fallback (recovery offer, onboarding,
+                    // bare activation opening the settings window, and
+                    // post-update release notes) so an unattended
+                    // --startup launch stays quiet.
+                    Log("[Activation] Startup drain: no queued activation, skipping interactive fallback");
                     continue;
                 }
 
